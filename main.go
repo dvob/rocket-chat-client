@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
+
+	"github.com/dsbrng25b/rocket-chat-client/pkg/rocketchat"
 )
 
 func main() {
@@ -15,7 +17,7 @@ func main() {
 	rcUserID := os.Getenv("RC_USER_ID")
 	rcUserToken := os.Getenv("RC_USER_TOKEN")
 
-	client := NewClient(rcURL, rcUserID, rcUserToken)
+	client := rocketchat.NewClient(rcURL, rcUserID, rcUserToken)
 
 	action := os.Args[1]
 	switch action {
