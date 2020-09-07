@@ -42,13 +42,13 @@ func newListChannelsCmd(app *app) *cobra.Command {
 		Use:   "channel",
 		Short: "List channels.",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			users, err := app.client.ListUsers()
+			channels, err := app.client.ListChannels()
 			if err != nil {
 				return err
 			}
 
-			for _, user := range users {
-				fmt.Println(user.Username)
+			for _, channel := range channels {
+				fmt.Println(channel.Name)
 			}
 			return nil
 		},
