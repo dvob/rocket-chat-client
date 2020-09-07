@@ -1,4 +1,4 @@
-project_name: pcert
+project_name: rocket-chat-client
 builds:
 - ldflags:
   - -s -w
