@@ -7,6 +7,7 @@ import (
 func newSendMsgCmd(app *app) *cobra.Command {
 	var (
 		alias string
+		emoji string
 	)
 	cmd := &cobra.Command{
 		Use:   "send <user|channel> <message>",
@@ -21,10 +22,11 @@ func newSendMsgCmd(app *app) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			destination := args[0]
 			message := args[1]
-			return app.client.SendMessage(destination, message, alias)
+			return app.client.SendMessage(destination, message, alias, emoji)
 		},
 	}
 	cmd.Flags().StringVar(&alias, "alias", alias, "Name under which the message appears.")
+	cmd.Flags().StringVar(&emoji, "emoji", emoji, "Change the Avatar to an emoji, e.g. :smirk:")
 	return cmd
 }
 

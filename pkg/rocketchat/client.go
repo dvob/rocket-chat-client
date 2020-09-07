@@ -21,6 +21,7 @@ type Message struct {
 	Text    string `json:"text"`
 	Channel string `json:"channel"`
 	Alias   string `json:"alias,omitempty"`
+	Emoji   string `json:"emoji,omitempty"`
 }
 
 // User represents a user in Rocket.Chat
@@ -103,11 +104,12 @@ func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 	return resp, err
 }
 
-func (c *Client) SendMessage(channel, text, alias string) error {
+func (c *Client) SendMessage(channel, text, alias string, emoji string) error {
 	msg := &Message{
 		Text:    text,
 		Channel: channel,
 		Alias:   alias,
+		Emoji:   emoji,
 	}
 
 	req, err := c.newRequest("POST", "/api/v1/chat.postMessage", msg)
