@@ -74,34 +74,6 @@ messages to them. All options can also be set as environment variables
 	return cmd
 }
 
-func newCompletionCmd() *cobra.Command {
-	var shell string
-	cmd := &cobra.Command{
-		Use:       "completion <shell>",
-		ValidArgs: []string{"bash", "zsh", "fish", "ps"},
-		Args:      cobra.ExactArgs(1),
-		Hidden:    true,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			shell = args[0]
-			var err error
-			switch shell {
-			case "bash":
-				err = newRootCmd().GenBashCompletion(os.Stdout)
-			case "zsh":
-				err = newRootCmd().GenZshCompletion(os.Stdout)
-			case "fish":
-				err = newRootCmd().GenFishCompletion(os.Stdout, true)
-			case "ps":
-				err = newRootCmd().GenPowerShellCompletion(os.Stdout)
-			default:
-				err = fmt.Errorf("unknown shell: %s", shell)
-			}
-			return err
-		},
-	}
-	return cmd
-}
-
 func newVersionCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "version",

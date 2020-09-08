@@ -22,3 +22,6 @@ rocket-chat-client list channel
 rocket-chat-client send "@username" "Hello World!"
 rocket-chat-client send "#channel-name" "Hello World!"
 ```
+
+With `rocket-chat-client completion` you can generate shell completions for Bash, ZSH, Fish and Powershell.
+Checkout `rocket-chat-client completion --help` for more information.
