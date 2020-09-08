@@ -16,7 +16,7 @@ type Client struct {
 	authToken  string
 }
 
-// Message defines a chat message
+// Message defines a chat message.
 type Message struct {
 	Text    string `json:"text"`
 	Channel string `json:"channel"`
@@ -24,24 +24,20 @@ type Message struct {
 	Emoji   string `json:"emoji,omitempty"`
 }
 
-// User represents a user in Rocket.Chat
+// User represents a user in Rocket.Chat.
 type User struct {
 	ID       string `json:"_id"`
 	Name     string `json:"name"`
 	Username string `json:"username"`
 }
 
-// Channel represents a channel in Rocket.Chat
+// Channel represents a channel in Rocket.Chat.
 type Channel struct {
 	ID   string `json:"_id"`
 	Name string `json:"name"`
 }
 
-// ErrorResponse
-type ErrorResponse struct {
-	Error string `json:"error"`
-}
-
+// NewClient returns a new Rocket.Chat client.
 func NewClient(url, userID, authToken string) *Client {
 	return &Client{
 		&http.Client{
@@ -81,45 +77,38 @@ func (c *Client) newRequest(method, path string, body interface{}) (*http.Reques
 	return req, nil
 }
 
-func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
+func (c *Client) do(req *http.Request, v interface{}) error {
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode > 399 {
-		var errorResponse ErrorResponse
+		errorResponse := struct {
+			Error string `json:"error"`
+		}{}
 		err = json.NewDecoder(resp.Body).Decode(&errorResponse)
 		if err != nil {
-			return nil, fmt.Errorf("request to '%s' failed with http %d: %s", resp.Request.URL, resp.StatusCode, err)
+			return fmt.Errorf("request to '%s' failed with http code %d", resp.Request.URL, resp.StatusCode)
 		}
-		return nil, fmt.Errorf("request to '%s' failed with http code %d: %s", resp.Request.URL, resp.StatusCode, errorResponse.Error)
+		return fmt.Errorf("request to '%s' failed with http code %d: %s", resp.Request.URL, resp.StatusCode, errorResponse.Error)
 	}
 
 	// nil for empty responses
 	if v != nil {
 		err = json.NewDecoder(resp.Body).Decode(v)
 	}
-	return resp, err
+	return err
 }
 
-func (c *Client) SendMessage(channel, text, alias string, emoji string) error {
-	msg := &Message{
-		Text:    text,
-		Channel: channel,
-		Alias:   alias,
-		Emoji:   emoji,
-	}
-
+func (c *Client) SendMessage(msg *Message) error {
 	req, err := c.newRequest("POST", "/api/v1/chat.postMessage", msg)
 	if err != nil {
 		return err
 	}
 
-	// errors are handeled in do
-	_, err = c.do(req, nil)
-	return err
+	return c.do(req, nil)
 }
 
 func (c *Client) ListChannels() ([]Channel, error) {
@@ -137,7 +126,7 @@ func (c *Client) ListChannels() ([]Channel, error) {
 	q.Add("count", "500")
 	req.URL.RawQuery = q.Encode()
 
-	_, err = c.do(req, &channelsResponse)
+	err = c.do(req, &channelsResponse)
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +149,7 @@ func (c *Client) ListUsers() ([]User, error) {
 	q.Add("count", "500")
 	req.URL.RawQuery = q.Encode()
 
-	_, err = c.do(req, &userResponse)
+	err = c.do(req, &userResponse)
 	if err != nil {
 		return nil, err
 	}
@@ -169,16 +158,10 @@ func (c *Client) ListUsers() ([]User, error) {
 }
 
 func (c *Client) TestConnection() error {
-
 	req, err := c.newRequest("GET", "/api/v1/me", nil)
 	if err != nil {
 		return err
 	}
 
-	_, err = c.do(req, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return c.do(req, nil)
 }

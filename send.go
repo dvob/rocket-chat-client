@@ -1,16 +1,14 @@
 package main
 
 import (
+	"github.com/dsbrng25b/rocket-chat-client/pkg/rocketchat"
 	"github.com/spf13/cobra"
 )
 
 func newSendMsgCmd(app *app) *cobra.Command {
-	var (
-		alias string
-		emoji string
-	)
+	var message = &rocketchat.Message{}
 	cmd := &cobra.Command{
-		Use:   "send <user|channel> <message>",
+		Use:   "send <@user|@channel> <message>",
 		Short: "Send a message to a user or a channel.",
 		Args:  cobra.ExactArgs(2),
 		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
@@ -20,13 +18,13 @@ func newSendMsgCmd(app *app) *cobra.Command {
 			return listAllDestinations(app), cobra.ShellCompDirectiveNoFileComp
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			destination := args[0]
-			message := args[1]
-			return app.client.SendMessage(destination, message, alias, emoji)
+			message.Channel = args[0]
+			message.Text = args[1]
+			return app.client.SendMessage(message)
 		},
 	}
-	cmd.Flags().StringVar(&alias, "alias", alias, "Name under which the message appears.")
-	cmd.Flags().StringVar(&emoji, "emoji", emoji, "Change the Avatar to an emoji, e.g. :smirk:")
+	cmd.Flags().StringVar(&message.Alias, "alias", message.Alias, "Name under which the message appears.")
+	cmd.Flags().StringVar(&message.Emoji, "emoji", message.Emoji, "Change the Avatar to an emoji, e.g. :smirk:")
 	return cmd
 }
 
