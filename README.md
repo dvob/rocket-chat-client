@@ -1,4 +1,6 @@
 # rocket-chat-client
+[![GoDoc](https://godoc.org/github.com/dsbrng25b/rocket-chat-client/pkg/rocketchat?status.svg)](https://godoc.org/github.com/dsbrng25b/rocket-chat-client/pkg/rocket-chat-client)
+[![Go Report Card](https://goreportcard.com/badge/github.com/dsbrng25b/rocket-chat-client)](https://goreportcard.com/report/github.com/dsbrng25b/rocket-chat-client)
 
 ## Usage
 To use the Rocket.Chat client you have to configure the server URL, a user ID and a token.

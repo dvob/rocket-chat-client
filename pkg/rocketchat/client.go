@@ -18,10 +18,14 @@ type Client struct {
 
 // Message defines a chat message.
 type Message struct {
-	Text    string `json:"text"`
+	Text string `json:"text"`
+
+	// Channel can either be a channel prefixed with a # or a username prefixed with an @.
 	Channel string `json:"channel"`
-	Alias   string `json:"alias,omitempty"`
-	Emoji   string `json:"emoji,omitempty"`
+
+	// Name under which the message appears.
+	Alias string `json:"alias,omitempty"`
+	Emoji string `json:"emoji,omitempty"`
 }
 
 // User represents a user in Rocket.Chat.
@@ -77,7 +81,9 @@ func (c *Client) newRequest(method, path string, body interface{}) (*http.Reques
 	return req, nil
 }
 
-func (c *Client) do(req *http.Request, v interface{}) error {
+// do performs a http request. If result is not nil it tries to json decode the
+// body into the result.
+func (c *Client) do(req *http.Request, result interface{}) error {
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return err
@@ -95,13 +101,13 @@ func (c *Client) do(req *http.Request, v interface{}) error {
 		return fmt.Errorf("request to '%s' failed with http code %d: %s", resp.Request.URL, resp.StatusCode, errorResponse.Error)
 	}
 
-	// nil for empty responses
-	if v != nil {
-		err = json.NewDecoder(resp.Body).Decode(v)
+	if result != nil {
+		err = json.NewDecoder(resp.Body).Decode(result)
 	}
 	return err
 }
 
+// SendMessage sends a message to a channel or user.
 func (c *Client) SendMessage(msg *Message) error {
 	req, err := c.newRequest("POST", "/api/v1/chat.postMessage", msg)
 	if err != nil {
@@ -111,6 +117,7 @@ func (c *Client) SendMessage(msg *Message) error {
 	return c.do(req, nil)
 }
 
+// ListChannels returns a list of channels.
 func (c *Client) ListChannels() ([]Channel, error) {
 	channelsResponse := struct {
 		Channels []Channel `json:"channels"`
@@ -134,6 +141,7 @@ func (c *Client) ListChannels() ([]Channel, error) {
 	return channelsResponse.Channels, nil
 }
 
+// ListUsers returns a list of users.
 func (c *Client) ListUsers() ([]User, error) {
 	userResponse := struct {
 		Users []User `json:"users"`
@@ -157,6 +165,8 @@ func (c *Client) ListUsers() ([]User, error) {
 	return userResponse.Users, nil
 }
 
+// TestConnection calls the endpoint /api/v1/me. It is intended to verify if the
+// connection to the Rocket.Chat server works.
 func (c *Client) TestConnection() error {
 	req, err := c.newRequest("GET", "/api/v1/me", nil)
 	if err != nil {
