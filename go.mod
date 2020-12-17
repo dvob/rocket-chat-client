@@ -1,4 +1,4 @@
-module github.com/dsbrng25b/rocket-chat-client
+module github.com/dvob/rocket-chat-client
 
 go 1.14
 

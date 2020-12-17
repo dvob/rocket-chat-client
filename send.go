@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/dsbrng25b/rocket-chat-client/pkg/rocketchat"
+	"github.com/dvob/rocket-chat-client/pkg/rocketchat"
 	"github.com/spf13/cobra"
 )
 
