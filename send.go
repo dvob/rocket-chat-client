@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+
 	"github.com/dvob/rocket-chat-client/pkg/rocketchat"
 	"github.com/spf13/cobra"
 )
@@ -20,7 +22,7 @@ func newSendMsgCmd(app *app) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			message.Channel = args[0]
 			message.Text = args[1]
-			return app.client.SendMessage(message)
+			return app.client.SendMessage(context.Background(), message)
 		},
 	}
 	cmd.Flags().StringVar(&message.Alias, "alias", message.Alias, "Name under which the message appears.")
@@ -30,14 +32,14 @@ func newSendMsgCmd(app *app) *cobra.Command {
 
 func listAllDestinations(app *app) []string {
 	destinations := []string{}
-	users, err := app.client.ListUsers()
+	users, err := app.client.ListUsers(context.Background())
 	if err == nil {
 		for _, u := range users {
 			destinations = append(destinations, "@"+u.Username)
 		}
 	}
 
-	channels, err := app.client.ListChannels()
+	channels, err := app.client.ListChannels(context.Background())
 	if err == nil {
 		for _, c := range channels {
 			destinations = append(destinations, "#"+c.Name)

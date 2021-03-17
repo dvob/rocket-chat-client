@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -23,7 +24,7 @@ func newListUsersCmd(app *app) *cobra.Command {
 		Use:   "user",
 		Short: "List users.",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			users, err := app.client.ListUsers()
+			users, err := app.client.ListUsers(context.Background())
 			if err != nil {
 				return err
 			}
@@ -42,7 +43,7 @@ func newListChannelsCmd(app *app) *cobra.Command {
 		Use:   "channel",
 		Short: "List channels.",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			channels, err := app.client.ListChannels()
+			channels, err := app.client.ListChannels(context.Background())
 			if err != nil {
 				return err
 			}

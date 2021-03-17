@@ -2,6 +2,7 @@ package rocketchat
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -53,7 +54,7 @@ func NewClient(url, userID, authToken string) *Client {
 	}
 }
 
-func (c *Client) newRequest(method, path string, body interface{}) (*http.Request, error) {
+func (c *Client) newRequest(ctx context.Context, method, path string, body interface{}) (*http.Request, error) {
 	url := fmt.Sprintf("%s/%s", c.url, path)
 
 	var buf io.ReadWriter
@@ -65,7 +66,7 @@ func (c *Client) newRequest(method, path string, body interface{}) (*http.Reques
 		}
 	}
 
-	req, err := http.NewRequest(method, url, buf)
+	req, err := http.NewRequestWithContext(ctx, method, url, buf)
 	if err != nil {
 		return nil, err
 	}
@@ -108,8 +109,8 @@ func (c *Client) do(req *http.Request, result interface{}) error {
 }
 
 // SendMessage sends a message to a channel or user.
-func (c *Client) SendMessage(msg *Message) error {
-	req, err := c.newRequest("POST", "/api/v1/chat.postMessage", msg)
+func (c *Client) SendMessage(ctx context.Context, msg *Message) error {
+	req, err := c.newRequest(ctx, "POST", "/api/v1/chat.postMessage", msg)
 	if err != nil {
 		return err
 	}
@@ -118,13 +119,13 @@ func (c *Client) SendMessage(msg *Message) error {
 }
 
 // ListChannels returns a list of channels.
-func (c *Client) ListChannels() ([]Channel, error) {
+func (c *Client) ListChannels(ctx context.Context) ([]Channel, error) {
 	channelsResponse := struct {
 		Channels []Channel `json:"channels"`
 		Count    int       `json:"count"`
 	}{}
 
-	req, err := c.newRequest("GET", "/api/v1/channels.list", nil)
+	req, err := c.newRequest(ctx, "GET", "/api/v1/channels.list", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -142,13 +143,13 @@ func (c *Client) ListChannels() ([]Channel, error) {
 }
 
 // ListUsers returns a list of users.
-func (c *Client) ListUsers() ([]User, error) {
+func (c *Client) ListUsers(ctx context.Context) ([]User, error) {
 	userResponse := struct {
 		Users []User `json:"users"`
 		Count int    `json:"count"`
 	}{}
 
-	req, err := c.newRequest("GET", "/api/v1/users.list", nil)
+	req, err := c.newRequest(ctx, "GET", "/api/v1/users.list", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -167,8 +168,8 @@ func (c *Client) ListUsers() ([]User, error) {
 
 // TestConnection calls the endpoint /api/v1/me. It is intended to verify if the
 // connection to the Rocket.Chat server works.
-func (c *Client) TestConnection() error {
-	req, err := c.newRequest("GET", "/api/v1/me", nil)
+func (c *Client) TestConnection(ctx context.Context) error {
+	req, err := c.newRequest(ctx, "GET", "/api/v1/me", nil)
 	if err != nil {
 		return err
 	}
