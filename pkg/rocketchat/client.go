@@ -54,7 +54,7 @@ func NewClient(url, userID, authToken string) *Client {
 	}
 }
 
-func (c *Client) newRequest(ctx context.Context, method, path string, body interface{}) (*http.Request, error) {
+func (c *Client) newRequest(ctx context.Context, method, path string, body any) (*http.Request, error) {
 	url := fmt.Sprintf("%s/%s", c.url, path)
 
 	var buf io.ReadWriter
@@ -84,7 +84,7 @@ func (c *Client) newRequest(ctx context.Context, method, path string, body inter
 
 // do performs a http request. If result is not nil it tries to json decode the
 // body into the result.
-func (c *Client) do(req *http.Request, result interface{}) error {
+func (c *Client) do(req *http.Request, result any) error {
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return err
